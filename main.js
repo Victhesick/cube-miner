@@ -9,12 +9,12 @@ const DIR={U:[0,-1],R:[1,0],D:[0,1],L:[-1,0]};
 const POS={U:[1,0],L:[0,1],F:[1,1],R:[2,1],B:[3,1],D:[1,2]};
 const NAMES={U:"UP",R:"RIGHT",D:"DOWN",L:"LEFT",F:"FRONT",B:"BACK"};
 const LEVELS=[
-{name:"First Dig",limit:22,difficulty:"BEGINNER",hint:"Gather the gold and gem, then find the exit.",faces:{U:["...",".C.","..."],L:["...","...","..."],F:["...",".S.","..."],R:["...","..G","..."],B:["...",".C.","..."],D:["...",".E.","..."]}},
-{name:"Shifting Tunnels",limit:27,difficulty:"BEGINNER",hint:"Rock blocks the shortest routes. Twist faces to shift the corridors.",faces:{U:["#..",".C.","..."],L:["...","...","C.."],F:["...",".S.","#.."],R:["...","..G",".#."],B:["...",".G.","..."],D:["...",".E.","..."]}},
-{name:"Crystal Run",limit:31,difficulty:"INTERMEDIATE",hint:"Two gems are hidden on opposite sides of the cave.",faces:{U:["..#","C..","..."],L:["...","#C.","..."],F:["...",".S.","..."],R:["..G","...","#.."],B:["...","G#.","..."],D:["...",".E.","..."]}},
-{name:"The Deep Shaft",limit:34,difficulty:"INTERMEDIATE",hint:"Paths shift with every turn. Keep an eye on the miner's face.",faces:{U:["C..","..#","..."],L:["...","..C","#.."],F:["S..","##.","..."],R:["...","G#.","..."],B:["..G","...","..."],D:["...","..E","..."]}},
-{name:"Gemstone Vault",limit:38,difficulty:"ADVANCED",hint:"Collect three gems and two coins. The exit is on the bottom face.",faces:{U:["..G",".#.","C.."],L:["...","C#.","..."],F:["..S","...","#.."],R:["G..","...","..#"],B:["...","#G.","..."],D:["..E","...","..."]}},
-{name:"Last Expedition",limit:43,difficulty:"EXPERT",hint:"The toughest cave. Plan your route before you turn.",faces:{U:["C.#","...","..G"],L:["...","#C.","..."],F:["S..",".#.","..."],R:["..G","...","#.."],B:["G..","...","..#"],D:["...","..E","..."]}}
+{name:"First Dig",limit:22,difficulty:"BEGINNER",hint:"Gather the gold and gem, then find the exit.",faces:{U:["...",".C.","..."],L:["...","...","..."],F:["S..","...","..."],R:["...","..G","..."],B:["...",".C.","..."],D:["...",".E.","..."]}},
+{name:"Shifting Tunnels",limit:27,difficulty:"BEGINNER",hint:"Start at the green-white-orange corner. Navigate around rocks to collect every treasure.",faces:{U:["#..",".C.","..."],L:["...","...","C.."],F:["...",".S.","#.."],R:["...","..G",".#."],B:["...",".G.","..."],D:["...",".E.","..."]}},
+{name:"Crystal Run",limit:31,difficulty:"INTERMEDIATE",hint:"Two gems are hidden on opposite sides of the cave.",faces:{U:["..#","C..","..."],L:["...","#C.","..."],F:["S..","...","..."],R:["..G","...","#.."],B:["...","G#.","..."],D:["...",".E.","..."]}},
+{name:"The Deep Shaft",limit:34,difficulty:"INTERMEDIATE",hint:"The miner starts at the green-white-orange corner. Find a safe route to every treasure.",faces:{U:["C..","..#","..."],L:["...","..C","#.."],F:["S..","##.","..."],R:["...","G#.","..."],B:["..G","...","..."],D:["...","..E","..."]}},
+{name:"Gemstone Vault",limit:38,difficulty:"ADVANCED",hint:"Collect three gems and two coins. The exit is on the bottom face.",faces:{U:["..G",".#.","C.."],L:["...","C#.","..."],F:["S..","...","#.."],R:["G..","...","..#"],B:["...","#G.","..."],D:["..E","...","..."]}},
+{name:"Last Expedition",limit:43,difficulty:"EXPERT",hint:"Begin at the green-white-orange corner. Plan your route through the fixed cave.",faces:{U:["C.#","...","..G"],L:["...","#C.","..."],F:["S..",".#.","..."],R:["..G","...","#.."],B:["G..","...","..#"],D:["...","..E","..."]}}
 ];
 let level=0,faces={},player={face:"F",x:1,y:1},moves=0,coins=0,gems=0,totalCoins=0,totalGems=0,history=[],active=false,timer;
 const clone=f=>Object.fromEntries(Object.entries(f).map(([k,rows])=>[k,rows.map(r=>r.split(""))]));
@@ -24,7 +24,7 @@ function toast(t){$("toast").textContent=t;$("toast").classList.add("show");clea
 function screen(id){["select","game","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
 function buildLevels(){$("levels").innerHTML=LEVELS.map((l,i)=>`<button class="level-card" data-level="${i}"><span class="num">CAVE ${String(i+1).padStart(2,"0")}</span><strong>${l.name}</strong><p>${l.hint}</p><footer><span>${l.difficulty}</span><span>${l.limit} MOVES</span></footer></button>`).join("");document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>start(+b.dataset.level))}
 function start(i){
- level=i;faces=clone(LEVELS[i].faces);player={face:"F",x:1,y:1};
+ level=i;faces=clone(LEVELS[i].faces);player={face:"F",x:0,y:0};
  for(const f of Object.keys(faces))for(let y=0;y<3;y++)for(let x=0;x<3;x++)if(faces[f][y][x]==="S"){player={face:f,x,y};faces[f][y][x]="."}
  moves=coins=gems=0;history=[];active=true;
  totalCoins=Object.values(faces).flat(2).filter(t=>t==="C").length;totalGems=Object.values(faces).flat(2).filter(t=>t==="G").length;
@@ -82,7 +82,7 @@ function turn(raw){
   // The cave layout is fixed in cube-local coordinates. Only the miner moves;
   // collected objectives disappear, and uncollected objectives never shift.
   moves++;$("last-turn").textContent=p.f+(p.prime?"′":"")+(p.n===2?"2":"");render();
-  if(!moved)toast("Rock wall — the cave still shifted!");
+  if(!moved)toast("Rock wall — choose another route!");
   if(checkExit())return;if(moves>=LEVELS[level].limit){finish(false);return}
  }
 }
