@@ -104,7 +104,6 @@ if(window.acubemy){
  // miner coordinates and collectible positions remain in cube-local space.
  window.acubemy.onGyro(({x,y,z,w})=>setGyroOrientation(x,y,z,w));
 }else $("device").textContent="Keyboard preview ready";
-}else $("device").textContent="Keyboard preview ready";
 
 // Drag/gyro orbit changes only the 3D view; it never changes tile or miner coordinates.
 let gyroMatrix="matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
