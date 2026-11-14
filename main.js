@@ -56,14 +56,21 @@ function render(){
  $("moves-left").textContent=Math.max(0,LEVELS[level].limit-moves);$("coins").textContent=`${coins}/${totalCoins}`;$("gems").textContent=`${gems}/${totalGems}`;
  $("location").textContent=`${NAMES[player.face]} · ${["TOP","MIDDLE","BOTTOM"][player.y]} ${["LEFT","CENTER","RIGHT"][player.x]}`;
  $("checklist").innerHTML=`<div class="check-row ${coins===totalCoins?"done":""}"><span>${coins===totalCoins?"✓":""}</span>Gold coins ${coins}/${totalCoins}</div><div class="check-row ${gems===totalGems?"done":""}"><span>${gems===totalGems?"✓":""}</span>Gems ${gems}/${totalGems}</div><div class="check-row"><span>🚪</span>Reach the exit</div>`;
- $("undo").disabled=!history.length;const net=$("cube-net");net.innerHTML="";
- for(const f of ["U","L","F","R","B","D"]){let [c,r]=POS[f],panel=document.createElement("div");panel.className="face"+(player.face===f?" current":"");panel.style.gridColumn=c+1;panel.style.gridRow=r+1;
-  let head=document.createElement("div");head.className="face-head";head.innerHTML=`<b>${NAMES[f]}</b><span>${f}</span>`;
-  let cells=document.createElement("div");cells.className="face-cells";
-  for(let y=0;y<3;y++)for(let x=0;x<3;x++){let t=faces[f][y][x],el=document.createElement("div");el.className="cell";
+ $("undo").disabled=!history.length;
+ const cube=$("cube-3d");cube.innerHTML="";
+ const transforms={F:"translateZ(105px)",B:"rotateY(180deg) translateZ(105px)",R:"rotateY(90deg) translateZ(105px)",L:"rotateY(-90deg) translateZ(105px)",U:"rotateX(90deg) translateZ(105px)",D:"rotateX(-90deg) translateZ(105px)"};
+ for(const f of ["F","B","R","L","U","D"]){
+  const panel=document.createElement("div");panel.className="cube-face face-"+f.toLowerCase()+(player.face===f?" current":"");panel.style.transform=transforms[f];
+  const cells=document.createElement("div");cells.className="cube-face-cells";
+  for(let y=0;y<3;y++)for(let x=0;x<3;x++){
+   const t=faces[f][y][x],el=document.createElement("div");el.className="cube-sticker";
    if(t==="#"){el.classList.add("wall");el.textContent="🪨"}else if(t==="C"){el.classList.add("coin");el.textContent="🪙"}else if(t==="G"){el.classList.add("gem");el.textContent="💎"}else if(t==="E"){el.classList.add("exit");el.textContent="🚪"}
-   if(player.face===f&&player.x===x&&player.y===y)el.classList.add("player");cells.appendChild(el)}
-  panel.append(head,cells);net.appendChild(panel)}
+   if(player.face===f&&player.x===x&&player.y===y){el.classList.add("player");el.textContent="👷"}
+   cells.appendChild(el);
+  }
+  const label=document.createElement("span");label.className="cube-face-label";label.textContent=NAMES[f];
+  panel.append(cells,label);cube.appendChild(panel);
+ }
 }
 function parse(raw){let m=String(raw||"").trim().toUpperCase().replace(/’/g,"'").match(/^([URFDLB])('?)(2)?$/);return m?{f:m[1],prime:m[2]==="'",n:m[3]?2:1}:null}
 function turn(raw){
@@ -89,3 +96,16 @@ if(window.acubemy){
  window.acubemy.onMove(({move})=>turn(move));
  window.acubemy.onDeviceChange(d=>{$("device").classList.toggle("connected",!!d.connected);$("device").innerHTML=`<i></i>${d.connected?(d.deviceName||"Cube connected"):"Waiting for cube"}`});
 }else $("device").textContent="Keyboard preview ready";
+
+// Drag-to-orbit 3D display (visual only; does not change puzzle state).
+(()=>{
+ const viewport=$("cube-viewport"),cube=$("cube-3d"),reset=$("cube-reset");
+ if(!viewport||!cube)return;
+ let rx=-22,ry=-32,drag=null;
+ const apply=()=>{cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`};
+ apply();
+ viewport.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,rx,ry};viewport.setPointerCapture(e.pointerId)});
+ viewport.addEventListener("pointermove",e=>{if(!drag)return;ry=drag.ry+(e.clientX-drag.x)*.55;rx=Math.max(-75,Math.min(75,drag.rx-(e.clientY-drag.y)*.55));apply()});
+ const stop=()=>{drag=null};viewport.addEventListener("pointerup",stop);viewport.addEventListener("pointercancel",stop);
+ reset?.addEventListener("click",()=>{rx=-22;ry=-32;apply()});
+})();

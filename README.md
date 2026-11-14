@@ -14,7 +14,7 @@ Guide a miner across all six cube faces, collect every gold coin and gem, and re
 
 The plugin listens to the template SDK events `acubemy.onMove(({ move }) => ...)` and `acubemy.onDeviceChange(...)`.
 
-## Preview
+## 3D display\nThe six cave faces are rendered as stickers on a perspective 3D Rubik’s cube. Drag the cube in the preview to orbit the camera; this changes only the view, not the puzzle state. Physical smart-cube turns continue to drive the miner and rotate the corresponding cave face.\n\n## Preview
 Use the acubemy SDK keyboard simulation (U R F D L B; Shift for prime turns), or the on-screen test buttons.
 
 ## Install
