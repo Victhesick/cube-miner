@@ -3,7 +3,7 @@
 An acubemy smart-cube cave puzzle built on the official `acubemy/plugin-template` structure.
 
 ## Game
-Guide a miner across all six cube faces, collect every gold coin and gem, and reach the exit before the move limit runs out. Rock tiles block routes. Each physical turn rotates its matching face, moving corridors and treasure. There are six difficulty levels.
+Guide a miner across all six cube faces, collect every gold coin and gem, and reach the exit before the move limit runs out. Rock tiles block routes. The cave tiles, corridors, coins, gems and exit stay fixed on their cube stickers. Physical turns move only the miner from tile to tile; crossing a coin or gem collects it. There are six difficulty levels.
 
 ## Controls
 - `U`, `R`, `D`, `L`: move across the cube surface in that local direction and twist the matching face.
