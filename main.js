@@ -9,14 +9,14 @@ const DIR={U:[0,-1],R:[1,0],D:[0,1],L:[-1,0]};
 const POS={U:[1,0],L:[0,1],F:[1,1],R:[2,1],B:[3,1],D:[1,2]};
 const NAMES={U:"UP",R:"RIGHT",D:"DOWN",L:"LEFT",F:"FRONT",B:"BACK"};
 const LEVELS=[
-{name:"First Dig",limit:22,difficulty:"BEGINNER",hint:"Gather the gold and gem, then find the exit.",faces:{U:["...",".C.","..."],L:["...","...","..."],F:["S..","...","..."],R:["...","..G","..."],B:["...",".C.","..."],D:["...",".E.","..."]}},
-{name:"Shifting Tunnels",limit:27,difficulty:"BEGINNER",hint:"Start at the green-white-orange corner. Navigate around rocks to collect every treasure.",faces:{U:["#..",".C.","..."],L:["...","...","C.."],F:["S..","...","#.."],R:["...","..G",".#."],B:["...",".G.","..."],D:["...",".E.","..."]}},
-{name:"Crystal Run",limit:31,difficulty:"INTERMEDIATE",hint:"Two gems are hidden on opposite sides of the cave.",faces:{U:["..#","C..","..."],L:["...","#C.","..."],F:["S..","...","..."],R:["..G","...","#.."],B:["...","G#.","..."],D:["...",".E.","..."]}},
-{name:"The Deep Shaft",limit:34,difficulty:"INTERMEDIATE",hint:"The miner starts at the green-white-orange corner. Find a safe route to every treasure.",faces:{U:["C..","..#","..."],L:["...","..C","#.."],F:["S..","##.","..."],R:["...","G#.","..."],B:["..G","...","..."],D:["...","..E","..."]}},
-{name:"Gemstone Vault",limit:38,difficulty:"ADVANCED",hint:"Collect three gems and two coins. The exit is on the bottom face.",faces:{U:["..G",".#.","C.."],L:["...","C#.","..."],F:["S..","...","#.."],R:["G..","...","..#"],B:["...","#G.","..."],D:["..E","...","..."]}},
-{name:"Last Expedition",limit:43,difficulty:"EXPERT",hint:"Begin at the green-white-orange corner. Plan your route through the fixed cave.",faces:{U:["C.#","...","..G"],L:["...","#C.","..."],F:["S..",".#.","..."],R:["..G","...","#.."],B:["G..","...","..#"],D:["...","..E","..."]}}
+{name:"First Dig",limit:14,difficulty:"BEGINNER",activeFaces:["F"],hint:"One face only. Collect the coin, then reach the exit.",faces:{U:["...","...","..."],L:["...","...","..."],F:["S.C","...","..E"],R:["...","...","..."],B:["...","...","..."],D:["...","...","..."]}},
+{name:"Upper Passage",limit:20,difficulty:"BEGINNER",activeFaces:["F","U"],hint:"A second face unlocks. Cross the top edge to collect its treasure.",faces:{U:["C..","...","..E"],L:["...","...","..."],F:["S..","...","..."],R:["...","...","..."],B:["...","...","..."],D:["...","...","..."]}},
+{name:"Right-Hand Cavern",limit:25,difficulty:"INTERMEDIATE",activeFaces:["F","U","R"],hint:"Three faces are open. Explore the right-hand face for the gem and exit.",faces:{U:["C..","...","..."],L:["...","...","..."],F:["S..","...","..."],R:["G..","...","..E"],B:["...","...","..."],D:["...","...","..."]}},
+{name:"The Left Tunnels",limit:30,difficulty:"INTERMEDIATE",activeFaces:["F","U","R","L"],hint:"A fourth face opens on the left. Find the coin, gem and exit.",faces:{U:["C..","...","..."],L:["..C","...","..E"],F:["S..","...","..."],R:["G..","...","..."],B:["...","...","..."],D:["...","...","..."]}},
+{name:"Down Below",limit:36,difficulty:"ADVANCED",activeFaces:["F","U","R","L","D"],hint:"Five faces are unlocked. Descend to the bottom face for the exit.",faces:{U:["C..","...","..."],L:["..C","...","..."],F:["S..","...","..."],R:["G..","...","..."],B:["...","...","..."],D:["..E","...","..G"]}},
+{name:"Full Cube Expedition",limit:44,difficulty:"EXPERT",activeFaces:["F","U","R","L","D","B"],hint:"All six faces are open. Complete the full-cube expedition.",faces:{U:["C..","...","..."],L:["..C","...","..."],F:["S..","...","..."],R:["G..","...","..."],B:["..G","...","..E"],D:["...","...","..."]}}
 ];
-let level=0,faces={},player={face:"F",x:0,y:0},moves=0,coins=0,gems=0,rocks=0,totalCoins=0,totalGems=0,totalRocks=0,history=[],active=false,timer;
+let level=0,faces={},activeFaces=[],player={face:"F",x:0,y:0},moves=0,coins=0,gems=0,rocks=0,totalCoins=0,totalGems=0,totalRocks=0,history=[],active=false,timer;
 const clone=f=>Object.fromEntries(Object.entries(f).map(([k,rows])=>[k,rows.map(r=>r.split(""))]));
 const snap=()=>({faces:Object.fromEntries(Object.entries(faces).map(([f,g])=>[f,g.map(r=>r.slice())])),player:{...player},moves,coins,gems,rocks});
 const restore=s=>{faces=s.faces;player=s.player;moves=s.moves;coins=s.coins;gems=s.gems;rocks=s.rocks};
@@ -24,10 +24,10 @@ function toast(t){$("toast").textContent=t;$("toast").classList.add("show");clea
 function screen(id){["select","game","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
 function buildLevels(){$("levels").innerHTML=LEVELS.map((l,i)=>`<button class="level-card" data-level="${i}"><span class="num">CAVE ${String(i+1).padStart(2,"0")}</span><strong>${l.name}</strong><p>${l.hint}</p><footer><span>${l.difficulty}</span><span>${l.limit} MOVES</span></footer></button>`).join("");document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>start(+b.dataset.level))}
 function start(i){
- level=i;faces=clone(LEVELS[i].faces);player={face:"F",x:0,y:0};
+ level=i;faces=clone(LEVELS[i].faces);activeFaces=LEVELS[i].activeFaces;player={face:"F",x:0,y:0};
  for(const f of Object.keys(faces))for(let y=0;y<3;y++)for(let x=0;x<3;x++)if(faces[f][y][x]==="S"){player={face:f,x,y};faces[f][y][x]="."}
  moves=coins=gems=rocks=0;history=[];active=true;
- totalCoins=Object.values(faces).flat(2).filter(t=>t==="C").length;totalGems=Object.values(faces).flat(2).filter(t=>t==="G").length;totalRocks=Object.values(faces).flat(2).filter(t=>t==="#").length;
+ totalCoins=activeFaces.reduce((n,f)=>n+faces[f].flat().filter(t=>t==="C").length,0);totalGems=activeFaces.reduce((n,f)=>n+faces[f].flat().filter(t=>t==="G").length,0);totalRocks=activeFaces.reduce((n,f)=>n+faces[f].flat().filter(t=>t==="#").length,0);
  $("level-number").textContent=`CAVE ${String(i+1).padStart(2,"0")}`;$("level-name").textContent=LEVELS[i].name;$("mission").textContent=LEVELS[i].hint;$("last-turn").textContent="—";screen("game");render();
 }
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
@@ -45,11 +45,12 @@ function step(dx,dy){
   const d=add(mul(b.u,dx),mul(b.v,dy)),nf=BY_NORMAL[d.join(",")];if(!nf)return false;
   const edge=dx!==0?mul(b.v,player.y-1):mul(b.u,player.x-1);
   const p=add(d,add(b.n,edge)),nb=BASIS[nf];
+  if(!activeFaces.includes(nf))return false;
   next={face:nf,x:Math.max(0,Math.min(2,Math.round(dot(p,nb.u)+1))),y:Math.max(0,Math.min(2,Math.round(dot(p,nb.v)+1)))};
  }
  player=next;collect();return true;
 }
-function depth(target){let f=target;if(player.face===target)f=target==="F"?"B":"F";player.face=f;collect();return true}
+function depth(target){let f=target;if(player.face===target)f=target==="F"?"B":"F";if(!activeFaces.includes(f))return false;player.face=f;collect();return true}
 function rotate(face,cw){
  const old=faces[face],next=Array.from({length:3},()=>Array(3).fill("."));
  for(let y=0;y<3;y++)for(let x=0;x<3;x++)next[y][x]=cw?old[2-x][y]:old[x][2-y];
@@ -64,7 +65,8 @@ function render(){
  const cube=$("cube-3d");cube.innerHTML="";
  const transforms={F:"translateZ(105px)",B:"rotateY(180deg) translateZ(105px)",R:"rotateY(90deg) translateZ(105px)",L:"rotateY(-90deg) translateZ(105px)",U:"rotateX(90deg) translateZ(105px)",D:"rotateX(-90deg) translateZ(105px)"};
  for(const f of ["F","B","R","L","U","D"]){
-  const panel=document.createElement("div");panel.className="cube-face face-"+f.toLowerCase()+(player.face===f?" current":"");panel.style.transform=transforms[f];
+  const panel=document.createElement("div");panel.className="cube-face face-"+f.toLowerCase()+(player.face===f?" current":"")+(activeFaces.includes(f)?"":" locked-face");panel.style.transform=transforms[f];
+  if(!activeFaces.includes(f)){const lock=document.createElement("div");lock.className="locked-face-label";lock.textContent="🔒";panel.appendChild(lock);cube.appendChild(panel);continue;}
   const cells=document.createElement("div");cells.className="cube-face-cells";
   for(let y=0;y<3;y++)for(let x=0;x<3;x++){
    const t=faces[f][y][x],el=document.createElement("div");el.className="cube-sticker";
@@ -86,7 +88,7 @@ function turn(raw){
   // The cave layout is fixed in cube-local coordinates. Only the miner moves;
   // collected objectives disappear, and uncollected objectives never shift.
   moves++;$("last-turn").textContent=p.f+(p.prime?"′":"")+(p.n===2?"2":"");render();
-  if(!moved)toast("Rock wall — choose another route!");
+  if(!moved)toast("That face is still locked — unlock it in a later cave.");
   if(checkExit())return;if(moves>=LEVELS[level].limit){finish(false);return}
  }
 }

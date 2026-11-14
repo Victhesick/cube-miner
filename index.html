@@ -7,7 +7,7 @@
 </head><body><main class="app">
 <header><div class="brand"><span class="pick">⛏</span><div><small>A SMART CUBE PUZZLE</small><h1>CAVE <em>MINER</em></h1></div></div><div id="device" class="device"><i></i> Waiting for cube</div></header>
 <section id="select" class="screen">
-<div class="hero"><div><small>ROTATE THE CUBE. RESHAPE THE CAVE.</small><h2>Dig your way<br><em>to the exit.</em></h2><p>Start on the green-white-orange corner cubie. Move the miner across fixed face tiles to collect every coin, gem and rock, then escape before your moves run out.</p><div class="legend">🪙 GOLD　 💎 GEM　 🪨 ROCK　 🚪 EXIT</div></div><div class="hero-art">👷<span>💎</span><b>🪙</b></div></div>
+<div class="hero"><div><small>ONE FACE AT A TIME. EXPAND YOUR CAVE.</small><h2>Dig your way<br><em>to the exit.</em></h2><p>Start on the green-white-orange corner. Each new level unlocks one more face of the cube. Move the miner across fixed tiles, collect the treasures and reach the exit.</p><div class="legend">🪙 GOLD　 💎 GEM　 🪨 ROCK　 🚪 EXIT</div></div><div class="hero-art">👷<span>💎</span><b>🪙</b></div></div>
 <div class="section-head"><div><small>CHOOSE YOUR CAVE</small><h3>Expedition levels</h3></div><small>6 PUZZLES</small></div><div id="levels" class="levels"></div>
 <div class="help"><b>YOUR CUBE IS THE CONTROLLER</b><p><span>U</span> Up　<span>R</span> Right　<span>D</span> Down　<span>L</span> Left　<span>F</span> Front　<span>B</span> Back</p><small>Prime turns (e.g. R′) reverse the move. The cave layout stays fixed; only the miner moves. Passing over a coin, gem or rock collects it.</small></div>
 </section>
@@ -17,7 +17,7 @@
 <div id="mission" class="mission"></div>
 <div class="layout"><div class="cube-stage"><div class="cube-toolbar"><span>3D CAVE CUBE</span><button id="cube-reset" type="button">RECENTER GYRO</button></div><div class="cube-viewport" id="cube-viewport" aria-label="Interactive three-dimensional Rubik’s cube. Drag to rotate the view."><div id="cube-3d" class="cube-3d"></div></div><small class="drag-hint">TILT YOUR CUBE TO ROTATE THE VIEW · MINER STAYS ON THE SAME PHYSICAL CORNER/TILE</small></div><aside>
 <div class="card"><small>MINER LOCATION</small><b id="location">FRONT · CENTER</b><p>The miner travels over the cube surface. Crossing an edge takes you onto the neighboring face.</p></div>
-<div class="card"><small>CAVE SHIFT</small><strong class="twist">⟳</strong><p>The cave stays fixed on the stickers. The miner moves across it and collects coins, gems and rocks by passing over them.</p></div>
+<div class="card"><small>CAVE SHIFT</small><strong class="twist">⟳</strong><p>The cave stays fixed on the stickers. Each level adds one face; locked faces open as you progress.</p></div>
 <div class="card"><small>ESCAPE CHECKLIST</small><div id="checklist"></div></div>
 <button id="undo" class="undo">↶ UNDO LAST TURN</button></aside></div>
 <div class="touch"><div id="touch-buttons"><button data-turn="U">U</button><button data-turn="R">R</button><button data-turn="F">F</button><button data-turn="L">L</button><button data-turn="D">D</button><button data-turn="B">B</button></div><small>TEST CONTROLS · OR TURN YOUR CONNECTED CUBE</small></div>
