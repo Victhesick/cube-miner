@@ -49,7 +49,7 @@ function step(dx,dy){
  }
  player=next;collect();return true;
 }
-function depth(target){let f=target;if(player.face===target)f=target==="F"?"B":"F";if(faces[f][player.y][player.x]==="#")return false;player.face=f;collect();return true}
+function depth(target){let f=target;if(player.face===target)f=target==="F"?"B":"F";player.face=f;collect();return true}
 function rotate(face,cw){
  const old=faces[face],next=Array.from({length:3},()=>Array(3).fill("."));
  for(let y=0;y<3;y++)for(let x=0;x<3;x++)next[y][x]=cw?old[2-x][y]:old[x][2-y];
@@ -131,7 +131,7 @@ function setGyroOrientation(x,y,z,w){
  const stop=()=>{drag=null};viewport.addEventListener("pointerup",stop);viewport.addEventListener("pointercancel",stop);
  reset?.addEventListener("click",()=>{
   rx=-22;ry=-32;apply();
-  if(window.acubemy?.calibrateGyro){window.acubemy.calibrateGyro();toast("Gyroscope recentered — hold cube with white up, green front")}
+  if(window.acubemy?.calibrateGyro){window.acubemy.calibrateGyro();toast("Gyroscope recentered — hold cube with white up, green front, orange left")}
   else toast("View reset — connect a gyro-enabled cube for motion control");
  });
 })();
