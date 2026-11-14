@@ -94,18 +94,39 @@ window.addEventListener("keydown",e=>{if(e.key==="Backspace"){e.preventDefault()
 buildLevels();
 if(window.acubemy){
  window.acubemy.onMove(({move})=>turn(move));
- window.acubemy.onDeviceChange(d=>{$("device").classList.toggle("connected",!!d.connected);$("device").innerHTML=`<i></i>${d.connected?(d.deviceName||"Cube connected"):"Waiting for cube"}`});
+ window.acubemy.onDeviceChange(d=>{
+  $("device").classList.toggle("connected",!!d.connected);
+  $("device").innerHTML=`<i></i>${d.connected?(d.deviceName||"Cube connected"):"Waiting for cube"}${d.connected?(d.hasGyro?" · GYRO READY":" · NO GYRO"):""}`;
+ });
+ // Gyroscope changes only the 3D camera/cube orientation. The puzzle grid,
+ // miner coordinates and collectible positions remain in cube-local space.
+ window.acubemy.onGyro(({x,y,z,w})=>setGyroOrientation(x,y,z,w));
+}else $("device").textContent="Keyboard preview ready";
 }else $("device").textContent="Keyboard preview ready";
 
 // Drag-to-orbit 3D display (visual only; does not change puzzle state).
+let gyroMatrix="matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+function setGyroOrientation(x,y,z,w){
+ // Convert the SDK's Three.js-frame quaternion to a CSS 4x4 rotation matrix.
+ const xx=x*x,yy=y*y,zz=z*z,xy=x*y,xz=x*z,yz=y*z,wx=w*x,wy=w*y,wz=w*z;
+ const m00=1-2*(yy+zz),m01=2*(xy-wz),m02=2*(xz+wy);
+ const m10=2*(xy+wz),m11=1-2*(xx+zz),m12=2*(yz-wx);
+ const m20=2*(xz-wy),m21=2*(yz+wx),m22=1-2*(xx+yy);
+ gyroMatrix=`matrix3d(${[m00,m10,m20,0,m01,m11,m21,0,m02,m12,m22,0,0,0,0,1].join(",")})`;
+ if(window.applyCubeView)window.applyCubeView();
+}
 (()=>{
  const viewport=$("cube-viewport"),cube=$("cube-3d"),reset=$("cube-reset");
  if(!viewport||!cube)return;
  let rx=-22,ry=-32,drag=null;
- const apply=()=>{cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`};
- apply();
+ const apply=()=>{cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) ${gyroMatrix}`};
+ window.applyCubeView=apply;apply();
  viewport.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,rx,ry};viewport.setPointerCapture(e.pointerId)});
  viewport.addEventListener("pointermove",e=>{if(!drag)return;ry=drag.ry+(e.clientX-drag.x)*.55;rx=Math.max(-75,Math.min(75,drag.rx-(e.clientY-drag.y)*.55));apply()});
  const stop=()=>{drag=null};viewport.addEventListener("pointerup",stop);viewport.addEventListener("pointercancel",stop);
- reset?.addEventListener("click",()=>{rx=-22;ry=-32;apply()});
+ reset?.addEventListener("click",()=>{
+  rx=-22;ry=-32;apply();
+  if(window.acubemy?.calibrateGyro){window.acubemy.calibrateGyro();toast("Gyroscope recentered — hold cube with white up, green front")}
+  else toast("View reset — connect a gyro-enabled cube for motion control");
+ });
 })();
