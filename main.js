@@ -79,7 +79,9 @@ function turn(raw){
   history.push(snap());let moved;
   if("URDL".includes(p.f)){let [dx,dy]=DIR[p.f];if(p.prime){dx=-dx;dy=-dy}moved=step(dx,dy)}
   else moved=depth(p.prime?(p.f==="F"?"B":"F"):p.f);
-  rotate(p.f,!p.prime);moves++;$("last-turn").textContent=p.f+(p.prime?"′":"")+(p.n===2?"2":"");render();
+  // The cave layout is fixed in cube-local coordinates. Only the miner moves;
+  // collected objectives disappear, and uncollected objectives never shift.
+  moves++;$("last-turn").textContent=p.f+(p.prime?"′":"")+(p.n===2?"2":"");render();
   if(!moved)toast("Rock wall — the cave still shifted!");
   if(checkExit())return;if(moves>=LEVELS[level].limit){finish(false);return}
  }
@@ -104,7 +106,7 @@ if(window.acubemy){
 }else $("device").textContent="Keyboard preview ready";
 }else $("device").textContent="Keyboard preview ready";
 
-// Drag-to-orbit 3D display (visual only; does not change puzzle state).
+// Drag/gyro orbit changes only the 3D view; it never changes tile or miner coordinates.
 let gyroMatrix="matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
 function setGyroOrientation(x,y,z,w){
  // Convert the SDK's Three.js-frame quaternion to a CSS 4x4 rotation matrix.
