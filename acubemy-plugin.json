@@ -1,0 +1,13 @@
+{
+  "sdk": 1,
+  "id": "cave-miner",
+  "name": "Cave Miner",
+  "author": "Cave Miner",
+  "version": "1.0.0",
+  "description": "A six-face smart-cube cave puzzle: collect gold and gems, then escape before your move limit runs out.",
+  "entry": "index.html",
+  "permissions": [
+    "moves",
+    "state"
+  ]
+}
